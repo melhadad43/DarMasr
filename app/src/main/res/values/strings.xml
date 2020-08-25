@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Test Project </string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="opstions">
+
+        <item> نعم موافق </item>
+        <item> لا مش موافق </item>
+
+    </string-array>
+</resources>

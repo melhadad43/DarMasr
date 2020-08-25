@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/logInFragment">
+
+
+    <fragment
+        android:id="@+id/logInFragment"
+        android:name="com.mustafaelhadad.testprojectqr.ui.main.LogInFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_log_in" >
+        <action
+            android:id="@+id/action_logInFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.mustafaelhadad.testprojectqr.ui.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_addVoteragment"
+            app:destination="@id/addVoteragment" />
+
+        <argument
+            android:name="admin_email"
+            app:nullable="true"
+            android:defaultValue="@null"
+            app:argType="string" />
+
+
+    </fragment>
+    <fragment
+        android:id="@+id/addVoteragment"
+        android:name="com.mustafaelhadad.testprojectqr.ui.AddVoteragment"
+        android:label="fragment_add_voteragment"
+        tools:layout="@layout/fragment_add_voteragment" >
+        <argument
+            android:name="adminButton"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <action
+            android:id="@+id/action_addVoteragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment><action android:id="@+id/action_global_homeFragment" app:destination="@id/homeFragment"/>
+</navigation>
