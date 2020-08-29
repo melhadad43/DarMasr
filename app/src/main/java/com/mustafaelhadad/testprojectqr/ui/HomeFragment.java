@@ -3,6 +3,7 @@ package com.mustafaelhadad.testprojectqr.ui;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -45,10 +46,10 @@ public class HomeFragment extends Fragment {
     FirestoreRecyclerAdapter<VoteModel, VoteAdapter.VoteHolder> adapter;
     private VoteItemBinding binding2;
 
-    String name ;
-    String adminMail ;
-    String id ;
-    Results results ;
+    String name;
+    String adminMail;
+    String id;
+    Results results;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -69,9 +70,9 @@ public class HomeFragment extends Fragment {
         controller = Navigation.findNavController(requireActivity(), R.id.fragment);
         SharedPreferences sharedpreferences = requireActivity().getSharedPreferences("MyPREFERENCES", requireContext().MODE_PRIVATE);
 
-         adminMail = sharedpreferences.getString("admin",null);
-         id = sharedpreferences.getString("id",null);
-         name = sharedpreferences.getString("userName",null);
+        adminMail = sharedpreferences.getString("admin", null);
+        id = sharedpreferences.getString("id", null);
+        name = sharedpreferences.getString("userName", null);
 
         if (adminMail != null && adminMail.equals("true")) {
             binding.floatingActionButtonCreateVote.setVisibility(View.VISIBLE);
@@ -94,16 +95,48 @@ public class HomeFragment extends Fragment {
                 .setQuery(query, VoteModel.class)
                 .build();
 
-       adapter = new FirestoreRecyclerAdapter<VoteModel, VoteAdapter.VoteHolder>(options) {
+        adapter = new FirestoreRecyclerAdapter<VoteModel, VoteAdapter.VoteHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull VoteAdapter.VoteHolder holder, int position, @NonNull VoteModel model) {
                 results = new Results();
 
+                DocumentReference docRef = db.collection("Results").document(adapter.getItem(position).getId());
+
+                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.getString("voteOp").toString() != "") {
+
+                                for (int i = 0; i < binding2.optionsRadioGroup.getChildCount(); i++) {
+
+                                    RadioButton currentRad = (RadioButton) binding2.optionsRadioGroup.getChildAt(i);
+                                    if (currentRad.getText().toString().equals(document.getString("voteOp").toString())) {
+                                        ((RadioButton) binding2.optionsRadioGroup.getChildAt(i)).setChecked(true);
+                                    }
+
+
+                                }
+
+                                binding2.optionsRadioGroup.setEnabled(false);
+                                binding2.btnSendVote.setEnabled(false);
+
+                                binding2.btnSendVote.setText("لقد صوت بالفعل");
+                                binding2.btnSendVote.setBackgroundColor(Color.rgb(0, 169, 36));
+                                binding2.btnSendVote.setTextColor(Color.rgb(255, 255, 255));
+                            }
+                        }
+                    }
+                });
+
                 binding2.textVote.setText(model.getVote());
-                if (adminMail !=null && adminMail.matches("true")) {
+
+
+                if (adminMail != null && adminMail.matches("true")) {
                     binding2.btnSendVote.setEnabled(false);
                     binding2.optionsRadioGroup.setVisibility(View.GONE);
-                }else {
+                } else {
 
                 }
 
@@ -119,12 +152,10 @@ public class HomeFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document.exists()) {
-                                        if (view.equals(binding2.body)){
-
-                                            
+                                        if (view.equals(binding2.body)) {
                                         }
                                         Toast.makeText(requireContext(), "is exists", Toast.LENGTH_SHORT).show();
-                                    }else {
+                                    } else {
                                         docRef.set(results).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -134,11 +165,11 @@ public class HomeFragment extends Fragment {
                                     }
                                 }
                             }
-                                });
+                        });
                     }
                 });
                 for (int i = 0; i < model.getOptionList().size(); i++) {
-                    Log.e("TAG", "for: test"+model.getOptionList().get(i) );
+                    Log.e("TAG", "for: test" + model.getOptionList().get(i));
 
                     RadioButton optionRadioButton = new RadioButton(holder.itemView.getContext());
                     optionRadioButton.setId(View.generateViewId());
@@ -146,9 +177,9 @@ public class HomeFragment extends Fragment {
                     optionRadioButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                            if (b){
+                            if (b) {
                                 results = new Results();
-                                results.setVoteOp(""+compoundButton.getText());
+                                results.setVoteOp("" + compoundButton.getText());
                                 results.setIdVote(adapter.getItem(position).getId());
                                 results.setIdUser(Integer.parseInt(id));
                             }
@@ -159,13 +190,13 @@ public class HomeFragment extends Fragment {
                 }
             }
 
-           @NonNull
-           @Override
-           public VoteModel getItem(int position) {
-               return super.getItem(position);
-           }
+            @NonNull
+            @Override
+            public VoteModel getItem(int position) {
+                return super.getItem(position);
+            }
 
-           @NonNull
+            @NonNull
             @Override
             public VoteHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 binding2 = VoteItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
@@ -178,12 +209,13 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private  void  add(int i,VoteModel model){
+    private void add(int i, VoteModel model) {
         results.setIdUser(Integer.parseInt(id));
         results.setIdVote(model.getId());
-            results.setVoteOp(model.getOptionList().get(i));
+        results.setVoteOp(model.getOptionList().get(i));
 
     }
+
     private void addVoteToHome() {
         controller.navigate(R.id.action_homeFragment_to_addVoteragment);
     }

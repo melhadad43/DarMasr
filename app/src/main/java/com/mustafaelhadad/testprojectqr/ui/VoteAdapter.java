@@ -52,6 +52,7 @@ public class VoteAdapter extends FirestoreRecyclerAdapter<VoteModel, VoteAdapter
             optionRadioButton.setId(View.generateViewId());
             optionRadioButton.setText(model.getOptionList().get(i));
             binding.optionsRadioGroup.addView(optionRadioButton);
+
         }
 
     }
