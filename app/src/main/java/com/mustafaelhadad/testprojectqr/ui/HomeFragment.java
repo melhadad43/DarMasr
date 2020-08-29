@@ -1,7 +1,9 @@
 package com.mustafaelhadad.testprojectqr.ui;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -100,32 +102,40 @@ public class HomeFragment extends Fragment {
             protected void onBindViewHolder(@NonNull VoteAdapter.VoteHolder holder, int position, @NonNull VoteModel model) {
                 results = new Results();
 
+
+
+
                 DocumentReference docRef = db.collection("Results").document(adapter.getItem(position).getId());
 
                 docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.getString("voteOp").toString() != "") {
 
-                                for (int i = 0; i < binding2.optionsRadioGroup.getChildCount(); i++) {
+if (!(adminMail != null && adminMail.equals("true"))) {
+    DocumentSnapshot document = task.getResult();
 
-                                    RadioButton currentRad = (RadioButton) binding2.optionsRadioGroup.getChildAt(i);
-                                    if (currentRad.getText().toString().equals(document.getString("voteOp").toString())) {
-                                        ((RadioButton) binding2.optionsRadioGroup.getChildAt(i)).setChecked(true);
-                                    }
+    if (document.getString("voteOp") != null) {
+        for (int i = 0; i < binding2.optionsRadioGroup.getChildCount(); i++) {
+            RadioButton currentRad = (RadioButton) binding2.optionsRadioGroup.getChildAt(i);
+            if (currentRad.getText().toString().equals(document.getString("voteOp").toString())) {
+                ((RadioButton) binding2.optionsRadioGroup.getChildAt(i)).setChecked(true);
+
+            }
+            ((RadioButton) binding2.optionsRadioGroup.getChildAt(i)).setEnabled(false);
+
+        }
+
+        binding2.btnSendVote.setEnabled(false);
+
+        binding2.btnSendVote.setText("لقد صوت بالفعل");
+        binding2.btnSendVote.setBackgroundColor(Color.rgb(0, 169, 36));
+        binding2.btnSendVote.setTextColor(Color.rgb(255, 255, 255));
+    }
 
 
-                                }
+}
 
-                                binding2.optionsRadioGroup.setEnabled(false);
-                                binding2.btnSendVote.setEnabled(false);
-
-                                binding2.btnSendVote.setText("لقد صوت بالفعل");
-                                binding2.btnSendVote.setBackgroundColor(Color.rgb(0, 169, 36));
-                                binding2.btnSendVote.setTextColor(Color.rgb(255, 255, 255));
-                            }
                         }
                     }
                 });
@@ -152,14 +162,19 @@ public class HomeFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document.exists()) {
-                                        if (view.equals(binding2.body)) {
-                                        }
-                                        Toast.makeText(requireContext(), "is exists", Toast.LENGTH_SHORT).show();
+
+                                       // Toast.makeText(requireContext(), "is exists", Toast.LENGTH_SHORT).show();
                                     } else {
                                         docRef.set(results).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
-                                                Toast.makeText(requireContext(), "OK", Toast.LENGTH_SHORT).show();
+
+                                                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                                                alert.setTitle("Done");
+                                                alert.setMessage("شكراً لتصويتك");
+                                                alert.setIcon(R.drawable.ic_action_name);
+                                                   alert.setPositiveButton("OK",null);
+                                                alert.show();
                                             }
                                         });
                                     }
